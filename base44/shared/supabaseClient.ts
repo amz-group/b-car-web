@@ -105,10 +105,20 @@ function genId() {
   return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+// Coerce empty strings to null so typed columns (date, int, etc.) don't reject
+// blank form fields. Frontend forms send "" for unfilled optional inputs.
+function sanitize(data) {
+  const out = {};
+  for (const [k, v] of Object.entries(data || {})) {
+    out[k] = v === '' ? null : v;
+  }
+  return out;
+}
+
 export async function createRow(base44, table, data) {
   const { ref, serviceKey } = await getConfig(base44);
   const now = new Date().toISOString();
-  const payload = { id: genId(), created_date: now, updated_date: now, ...data };
+  const payload = { id: genId(), created_date: now, updated_date: now, ...sanitize(data) };
   const res = await fetch(`${restBase(ref)}/${table}`, {
     method: 'POST',
     headers: authHeaders(serviceKey),
@@ -121,7 +131,7 @@ export async function createRow(base44, table, data) {
 
 export async function updateRow(base44, table, id, data) {
   const { ref, serviceKey } = await getConfig(base44);
-  const payload = { updated_date: new Date().toISOString(), ...data };
+  const payload = { updated_date: new Date().toISOString(), ...sanitize(data) };
   const res = await fetch(`${restBase(ref)}/${table}?id=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: authHeaders(serviceKey),
