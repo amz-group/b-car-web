@@ -4,7 +4,11 @@ import { base44 } from '@/api/base44Client';
 // Mirrors the Base44 entity SDK call shape so pages can use db.Entity.method(...)
 // exactly like the previous base44.entities.Entity.method(...) calls.
 function invoke(entity, op, extra) {
-  return base44.functions.invoke('supabaseCrud', { entity, op, ...extra }).then((r) => r.data);
+  return base44.functions.invoke('supabaseCrud', { entity, op, ...extra }).then((r) => {
+    const data = r?.data;
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  });
 }
 
 function makeEntity(name) {

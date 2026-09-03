@@ -171,7 +171,10 @@ function RentalEditor({ rental, cars, onClose, onSaved, syncCar }) {
       else await db.Rental.update(rental.id, payload);
       await syncCar(form.car_id);
       toast({ title: '✓' }); onSaved();
-    } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
+    } catch (e) {
+      console.error('Rental save error:', e);
+      toast({ title: e?.message || 'Save failed', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   }
 

@@ -114,7 +114,10 @@ function NewsEditor({ item, onClose, onSaved }) {
       if (isNew) await db.News.create(form);
       else await db.News.update(item.id, form);
       toast({ title: '✓' }); onSaved();
-    } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
+    } catch (e) {
+      console.error('News save error:', e);
+      toast({ title: e?.message || 'Save failed', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   }
 

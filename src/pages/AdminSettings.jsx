@@ -41,7 +41,10 @@ export default function AdminSettings() {
       if (settings.id) await db.SiteSettings.update(settings.id, settings);
       else { const created = await db.SiteSettings.create(settings); setSettings(created); }
       toast({ title: t.admin.settingsSaved });
-    } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
+    } catch (e) {
+      console.error('Settings save error:', e);
+      toast({ title: e?.message || 'Save failed', variant: 'destructive' });
+    }
     finally { setSaving(false); }
   }
 
