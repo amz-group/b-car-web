@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { Image } from '@/components/ui/image';
 import { Star, MessageSquare, Upload, X, Loader2, CheckCircle2 } from 'lucide-react';
@@ -14,7 +15,7 @@ export default function ReviewsSection({ carId, carName }) {
   useEffect(() => {
     (async () => {
       try {
-        const list = await base44.entities.Review.filter({ car_id: carId, approved: true }, '-created_date', 50);
+        const list = await db.Review.filter({ car_id: carId, approved: true }, '-created_date', 50);
         setReviews(list || []);
       } catch { setReviews([]); }
       finally { setLoading(false); }
@@ -119,7 +120,7 @@ function ReviewForm({ carId, carName, t, onDone }) {
     if (!form.customer_name || !form.comment) return;
     setSaving(true);
     try {
-      await base44.entities.Review.create({
+      await db.Review.create({
         car_id: carId, car_name: carName,
         customer_name: form.customer_name, rating: form.rating, comment: form.comment,
         images: form.images, approved: false

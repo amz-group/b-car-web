@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Plus, Pencil, Trash2, X, Upload, Image as ImageIcon, Video, Car as CarIcon, Loader2 } from 'lucide-react';
@@ -22,7 +23,7 @@ export default function AdminCars() {
   async function load() {
     setLoading(true);
     try {
-      const list = await base44.entities.Car.list('order', 200);
+      const list = await db.Car.list('order', 200);
       setCars(list || []);
     } catch { setCars([]); }
     finally { setLoading(false); }
@@ -35,7 +36,7 @@ export default function AdminCars() {
     const update = { status: newStatus };
     if (newStatus !== 'rented') { update.rented_from = ''; update.rented_until = ''; }
     try {
-      await base44.entities.Car.update(car.id, update);
+      await db.Car.update(car.id, update);
       setCars(cars.map(c => c.id === car.id ? { ...c, ...update } : c));
     } catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
@@ -43,7 +44,7 @@ export default function AdminCars() {
   async function deleteCar(car) {
     if (!confirm(t.admin.confirmDelete)) return;
     try {
-      await base44.entities.Car.delete(car.id);
+      await db.Car.delete(car.id);
       setCars(cars.filter(c => c.id !== car.id));
       toast({ title: '✓' });
     } catch { toast({ title: 'Error', variant: 'destructive' }); }
@@ -152,8 +153,8 @@ function CarEditor({ car, onClose, onSaved }) {
     }
     setSaving(true);
     try {
-      if (isNew) await base44.entities.Car.create(form);
-      else await base44.entities.Car.update(car.id, form);
+      if (isNew) await db.Car.create(form);
+      else await db.Car.update(car.id, form);
       toast({ title: '✓' });
       onSaved();
     } catch { toast({ title: 'Save failed', variant: 'destructive' }); }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { Image } from '@/components/ui/image';
 import { Newspaper, Tag, TrendingUp, ArrowRight, ArrowLeft, Pin } from 'lucide-react';
@@ -18,7 +19,7 @@ export default function NewsSection() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await base44.entities.News.filter({ active: true }, '-created_date', 12);
+        const list = await db.News.filter({ active: true }, '-created_date', 12);
         const sorted = (list || []).sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
         setItems(sorted);
       } catch { setItems([]); }

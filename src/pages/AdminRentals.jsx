@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Plus, Pencil, Trash2, X, Loader2, CalendarCheck, Check, Ban, Car as CarIcon, Phone } from 'lucide-react';
@@ -21,8 +22,8 @@ export default function AdminRentals() {
     setLoading(true);
     try {
       const [list, carList] = await Promise.all([
-        base44.entities.Rental.list('-start_date', 200),
-        base44.entities.Car.list('order', 200)
+        db.Rental.list('-start_date', 200),
+        db.Car.list('order', 200)
       ]);
       setRentals(list || []);
       setCars(carList || []);
@@ -33,36 +34,36 @@ export default function AdminRentals() {
   async function syncCar(carId) {
     if (!carId) return;
     const today = new Date().toISOString().slice(0, 10);
-    const active = await base44.entities.Rental.filter({ car_id: carId, status: 'active' }, 'start_date', 100);
+    const active = await db.Rental.filter({ car_id: carId, status: 'active' }, 'start_date', 100);
     const list = active || [];
     const current = list.find(r => r.start_date <= today && r.end_date >= today);
     const upcoming = list.filter(r => r.start_date > today).sort((a, b) => a.start_date.localeCompare(b.start_date))[0];
     const target = current || upcoming;
     try {
       if (target) {
-        await base44.entities.Car.update(carId, { status: 'rented', rented_from: target.start_date, rented_until: target.end_date });
+        await db.Car.update(carId, { status: 'rented', rented_from: target.start_date, rented_until: target.end_date });
       } else {
         const car = cars.find(c => c.id === carId);
         if (car?.status !== 'unavailable') {
-          await base44.entities.Car.update(carId, { status: 'available', rented_from: '', rented_until: '' });
+          await db.Car.update(carId, { status: 'available', rented_from: '', rented_until: '' });
         }
       }
     } catch {}
   }
 
   async function complete(r) {
-    try { await base44.entities.Rental.update(r.id, { status: 'completed' }); await syncCar(r.car_id); load(); toast({ title: '✓' }); }
+    try { await db.Rental.update(r.id, { status: 'completed' }); await syncCar(r.car_id); load(); toast({ title: '✓' }); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function cancel(r) {
-    try { await base44.entities.Rental.update(r.id, { status: 'cancelled' }); await syncCar(r.car_id); load(); }
+    try { await db.Rental.update(r.id, { status: 'cancelled' }); await syncCar(r.car_id); load(); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function del(r) {
     if (!confirm(t.admin.confirmDeleteRental)) return;
-    try { await base44.entities.Rental.delete(r.id); await syncCar(r.car_id); setRentals(rentals.filter(x => x.id !== r.id)); }
+    try { await db.Rental.delete(r.id); await syncCar(r.car_id); setRentals(rentals.filter(x => x.id !== r.id)); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
@@ -166,8 +167,8 @@ function RentalEditor({ rental, cars, onClose, onSaved, syncCar }) {
     const payload = { ...form, car_name: car?.name || form.car_name || '' };
     setSaving(true);
     try {
-      if (isNew) await base44.entities.Rental.create(payload);
-      else await base44.entities.Rental.update(rental.id, payload);
+      if (isNew) await db.Rental.create(payload);
+      else await db.Rental.update(rental.id, payload);
       await syncCar(form.car_id);
       toast({ title: '✓' }); onSaved();
     } catch { toast({ title: 'Save failed', variant: 'destructive' }); }

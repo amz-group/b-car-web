@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useSettings } from '@/lib/useSettings';
 import { Image } from '@/components/ui/image';
@@ -25,9 +26,9 @@ export default function CarDetail() {
   useEffect(() => {
     (async () => {
       try {
-        const c = await base44.entities.Car.get(id);
+        const c = await db.Car.get(id);
         setCar(c);
-        const rlist = await base44.entities.Rental.filter({ car_id: id, status: 'active' }, 'start_date', 50);
+        const rlist = await db.Rental.filter({ car_id: id, status: 'active' }, 'start_date', 50);
         setRentals(rlist || []);
       } catch (e) { setCar(null); }
       finally { setLoading(false); }
@@ -69,7 +70,7 @@ export default function CarDetail() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await base44.entities.NotifyRequest.create({
+      await db.NotifyRequest.create({
         car_id: car.id, car_name: car.name,
         customer_name: notifyForm.name, customer_phone: notifyForm.phone,
         notify_date: notifyForm.date || car.rented_until || '', status: 'pending'

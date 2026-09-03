@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useSettings } from '@/lib/useSettings';
 import NewsSection from '@/components/NewsSection';
@@ -19,7 +20,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await base44.entities.Car.list('order', 100);
+        const list = await db.Car.list('order', 100);
         setCars(list || []);
       } catch (e) { setCars([]); }
       finally { setLoading(false); }

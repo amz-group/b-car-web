@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Check, X, Trash2, Star, Loader2, MessageSquare } from 'lucide-react';
@@ -17,25 +18,25 @@ export default function AdminReviews() {
   async function load() {
     setLoading(true);
     try {
-      const list = await base44.entities.Review.list('-created_date', 200);
+      const list = await db.Review.list('-created_date', 200);
       setReviews(list || []);
     } catch { setReviews([]); }
     finally { setLoading(false); }
   }
 
   async function approve(r) {
-    try { await base44.entities.Review.update(r.id, { approved: true }); load(); toast({ title: '✓' }); }
+    try { await db.Review.update(r.id, { approved: true }); load(); toast({ title: '✓' }); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function unapprove(r) {
-    try { await base44.entities.Review.update(r.id, { approved: false }); load(); }
+    try { await db.Review.update(r.id, { approved: false }); load(); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function del(r) {
     if (!confirm(t.admin.confirmDeleteReview)) return;
-    try { await base44.entities.Review.delete(r.id); setReviews(reviews.filter(x => x.id !== r.id)); }
+    try { await db.Review.delete(r.id); setReviews(reviews.filter(x => x.id !== r.id)); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Plus, Pencil, Trash2, X, Upload, Pin, Loader2, Newspaper, Image as ImageIcon } from 'lucide-react';
@@ -18,25 +19,25 @@ export default function AdminNews() {
   async function load() {
     setLoading(true);
     try {
-      const list = await base44.entities.News.list('-created_date', 100);
+      const list = await db.News.list('-created_date', 100);
       setItems(list || []);
     } catch { setItems([]); }
     finally { setLoading(false); }
   }
 
   async function togglePin(item) {
-    try { await base44.entities.News.update(item.id, { pinned: !item.pinned }); load(); }
+    try { await db.News.update(item.id, { pinned: !item.pinned }); load(); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function toggleActive(item) {
-    try { await base44.entities.News.update(item.id, { active: !item.active }); load(); }
+    try { await db.News.update(item.id, { active: !item.active }); load(); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
   async function del(item) {
     if (!confirm(t.admin.confirmDeleteNews)) return;
-    try { await base44.entities.News.delete(item.id); setItems(items.filter(i => i.id !== item.id)); toast({ title: '✓' }); }
+    try { await db.News.delete(item.id); setItems(items.filter(i => i.id !== item.id)); toast({ title: '✓' }); }
     catch { toast({ title: 'Error', variant: 'destructive' }); }
   }
 
@@ -110,8 +111,8 @@ function NewsEditor({ item, onClose, onSaved }) {
     if (!form.title_en) { toast({ title: 'Title (English) required', variant: 'destructive' }); return; }
     setSaving(true);
     try {
-      if (isNew) await base44.entities.News.create(form);
-      else await base44.entities.News.update(item.id, form);
+      if (isNew) await db.News.create(form);
+      else await db.News.update(item.id, form);
       toast({ title: '✓' }); onSaved();
     } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
     finally { setSaving(false); }

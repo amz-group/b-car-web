@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useSettings } from '@/lib/useSettings';
 import { Image } from '@/components/ui/image';
@@ -15,7 +16,7 @@ export default function OffersSection() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await base44.entities.Car.list('order', 200);
+        const list = await db.Car.list('order', 200);
         setCars((list || []).filter(c => (c.discount_percentage || 0) > 0));
       } catch { setCars([]); }
       finally { setLoading(false); }

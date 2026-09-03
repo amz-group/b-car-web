@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useAdminAuth } from '@/lib/AdminAuthContext';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,7 +18,7 @@ export default function AdminAdmins() {
 
   async function load() {
     try {
-      const list = await base44.entities.AdminUser.list();
+      const list = await db.AdminUser.list();
       setAdmins(list || []);
     } catch { setAdmins([]); }
     finally { setLoading(false); }
@@ -25,7 +26,7 @@ export default function AdminAdmins() {
 
   async function toggleActive(admin) {
     try {
-      await base44.entities.AdminUser.update(admin.id, { active: !admin.active });
+      await db.AdminUser.update(admin.id, { active: !admin.active });
       load();
     } catch { toast({ title: 'Error', variant: 'destructive' }); }
   }

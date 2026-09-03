@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 
 export function useSettings() {
   const [settings, setSettings] = useState(null);
@@ -9,7 +10,7 @@ export function useSettings() {
     let active = true;
     (async () => {
       try {
-        const list = await base44.entities.SiteSettings.list();
+        const list = await db.SiteSettings.list();
         if (!active) return;
         if (list && list.length > 0) setSettings(list[0]);
         else setSettings(null);

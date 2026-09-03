@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Upload, Loader2, Save, Image as ImageIcon, Link2, Phone, Globe } from 'lucide-react';
@@ -16,7 +17,7 @@ export default function AdminSettings() {
 
   async function load() {
     try {
-      const list = await base44.entities.SiteSettings.list();
+      const list = await db.SiteSettings.list();
       if (list && list.length > 0) setSettings(list[0]);
       else setSettings({ whatsapp_number: '9647509180156', display_phone: '07509180156' });
     } catch { setSettings({}); }
@@ -37,8 +38,8 @@ export default function AdminSettings() {
   async function save() {
     setSaving(true);
     try {
-      if (settings.id) await base44.entities.SiteSettings.update(settings.id, settings);
-      else { const created = await base44.entities.SiteSettings.create(settings); setSettings(created); }
+      if (settings.id) await db.SiteSettings.update(settings.id, settings);
+      else { const created = await db.SiteSettings.create(settings); setSettings(created); }
       toast({ title: t.admin.settingsSaved });
     } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
     finally { setSaving(false); }
