@@ -1,0 +1,58 @@
+{
+  "name": "News",
+  "type": "object",
+  "properties": {
+    "title_en": {
+      "type": "string",
+      "title": "Title (English)"
+    },
+    "title_ku": {
+      "type": "string",
+      "title": "Title (Kurdish)"
+    },
+    "title_ar": {
+      "type": "string",
+      "title": "Title (Arabic)"
+    },
+    "content_en": {
+      "type": "string",
+      "title": "Content (English)"
+    },
+    "content_ku": {
+      "type": "string",
+      "title": "Content (Kurdish)"
+    },
+    "content_ar": {
+      "type": "string",
+      "title": "Content (Arabic)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "news",
+        "offer",
+        "price_change"
+      ],
+      "default": "news",
+      "title": "Type"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Image URL"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "title": "Active"
+    },
+    "pinned": {
+      "type": "boolean",
+      "default": false,
+      "title": "Pinned to top"
+    }
+  },
+  "required": [
+    "title_en",
+    "type"
+  ]
+}

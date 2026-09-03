@@ -1,0 +1,28 @@
+{
+  "name": "OtpCode",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "code": {
+      "type": "string",
+      "title": "OTP Code"
+    },
+    "expires_at": {
+      "type": "string",
+      "title": "Expiry ISO Date"
+    },
+    "used": {
+      "type": "boolean",
+      "default": false,
+      "title": "Used"
+    }
+  },
+  "required": [
+    "email",
+    "code",
+    "expires_at"
+  ]
+}

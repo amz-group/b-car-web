@@ -1,0 +1,124 @@
+{
+  "name": "Car",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Car Name",
+      "description": "Display name e.g. Mercedes S-Class"
+    },
+    "brand": {
+      "type": "string",
+      "title": "Brand"
+    },
+    "model": {
+      "type": "string",
+      "title": "Model"
+    },
+    "year": {
+      "type": "integer",
+      "title": "Year"
+    },
+    "price_per_day": {
+      "type": "number",
+      "title": "Price Per Day (USD)"
+    },
+    "discount_percentage": {
+      "type": "number",
+      "title": "Discount %",
+      "minimum": 0,
+      "maximum": 90,
+      "default": 0,
+      "description": "0 = no discount"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "rented",
+        "unavailable"
+      ],
+      "default": "available",
+      "title": "Availability Status"
+    },
+    "rented_from": {
+      "type": "string",
+      "format": "date",
+      "title": "Rented From (pickup date)"
+    },
+    "rented_until": {
+      "type": "string",
+      "format": "date",
+      "title": "Rented Until (return date)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "sedan",
+        "suv",
+        "sports",
+        "luxury",
+        "van"
+      ],
+      "default": "luxury",
+      "title": "Category"
+    },
+    "description_en": {
+      "type": "string",
+      "title": "Description (English)"
+    },
+    "description_ku": {
+      "type": "string",
+      "title": "Description (Kurdish)"
+    },
+    "description_ar": {
+      "type": "string",
+      "title": "Description (Arabic)"
+    },
+    "engine": {
+      "type": "string",
+      "title": "Engine"
+    },
+    "transmission": {
+      "type": "string",
+      "enum": [
+        "automatic",
+        "manual"
+      ],
+      "default": "automatic",
+      "title": "Transmission"
+    },
+    "seats": {
+      "type": "integer",
+      "title": "Seats",
+      "default": 5
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Image URLs (up to 7)",
+      "maxItems": 7
+    },
+    "video_url": {
+      "type": "string",
+      "title": "Video URL (30s)"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "title": "Featured"
+    },
+    "order": {
+      "type": "integer",
+      "default": 0,
+      "title": "Display Order"
+    }
+  },
+  "required": [
+    "name",
+    "brand",
+    "price_per_day"
+  ]
+}

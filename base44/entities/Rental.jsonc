@@ -1,0 +1,53 @@
+{
+  "name": "Rental",
+  "type": "object",
+  "properties": {
+    "car_id": {
+      "type": "string",
+      "title": "Car ID"
+    },
+    "car_name": {
+      "type": "string",
+      "title": "Car Name"
+    },
+    "customer_name": {
+      "type": "string",
+      "title": "Customer Name"
+    },
+    "customer_phone": {
+      "type": "string",
+      "title": "Customer Phone"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date (pickup)"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date (return)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "active",
+      "title": "Status"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "car_id",
+    "car_name",
+    "customer_name",
+    "start_date",
+    "end_date"
+  ]
+}

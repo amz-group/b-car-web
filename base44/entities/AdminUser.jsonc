@@ -1,0 +1,38 @@
+{
+  "name": "AdminUser",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "title": "Email",
+      "description": "Admin login email"
+    },
+    "name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "password": {
+      "type": "string",
+      "title": "Password (hashed)"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "admin"
+      ],
+      "default": "admin",
+      "title": "Role"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "title": "Active"
+    }
+  },
+  "required": [
+    "email",
+    "password",
+    "role"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "NotifyRequest",
+  "type": "object",
+  "properties": {
+    "car_id": {
+      "type": "string",
+      "title": "Car ID"
+    },
+    "car_name": {
+      "type": "string",
+      "title": "Car Name"
+    },
+    "customer_name": {
+      "type": "string",
+      "title": "Customer Name"
+    },
+    "customer_phone": {
+      "type": "string",
+      "title": "Customer Phone (WhatsApp)"
+    },
+    "notify_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Notify me from this date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "notified",
+        "closed"
+      ],
+      "default": "pending",
+      "title": "Status"
+    }
+  },
+  "required": [
+    "car_id",
+    "customer_name",
+    "customer_phone"
+  ]
+}
