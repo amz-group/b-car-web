@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
 import { db } from '@/lib/db';
 import { useAdminAuth } from '@/lib/AdminAuthContext';
 import { useLang } from '@/lib/LanguageContext';
@@ -99,7 +98,7 @@ function AddAdminModal({ onClose, onDone, createAdmin }) {
       toast({ title: '✓' });
       onDone();
     } catch (err) {
-      toast({ title: err.response?.data?.error || 'Failed', variant: 'destructive' });
+      toast({ title: err.message || 'Failed', variant: 'destructive' });
     } finally { setSaving(false); }
   }
 

@@ -2,17 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '@/lib/AdminAuthContext';
 import { useLang } from '@/lib/LanguageContext';
-import { Mail, Lock, ArrowRight, ShieldCheck, KeyRound } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin() {
-  const { login, requestOtp, resetPassword } = useAdminAuth();
+  const { login, requestOtp } = useAdminAuth();
   const { t, dir } = useLang();
   const navigate = useNavigate();
-  const [mode, setMode] = useState('login'); // login | forgotOtp | forgotReset
+  const [mode, setMode] = useState('login'); // login | forgot
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,27 +27,15 @@ export default function AdminLogin() {
     } finally { setLoading(false); }
   }
 
-  async function handleSendOtp(e) {
+  async function handleForgot(e) {
     e.preventDefault();
     setError(''); setInfo(''); setLoading(true);
     try {
       await requestOtp(email);
       setInfo(t.admin.otpSent);
-      setMode('forgotReset');
+      setMode('login');
     } catch (err) {
-      setError(err.response?.data?.error || t.admin.invalid);
-    } finally { setLoading(false); }
-  }
-
-  async function handleReset(e) {
-    e.preventDefault();
-    setError(''); setInfo(''); setLoading(true);
-    try {
-      await resetPassword(email, otp, newPassword);
-      setMode('login'); setPassword(''); setOtp(''); setNewPassword('');
-      setInfo(t.admin.reset + ' ✓');
-    } catch (err) {
-      setError(err.response?.data?.error || t.admin.invalid);
+      setError(err.message || t.admin.invalid);
     } finally { setLoading(false); }
   }
 
@@ -82,30 +68,17 @@ export default function AdminLogin() {
                 {loading ? t.common.loading : t.admin.login}
                 <ArrowRight className={`w-4 h-4 ${Arrow}`} />
               </button>
-              <button type="button" onClick={() => { setMode('forgotOtp'); setError(''); setInfo(''); }} className="w-full text-sm text-zinc-500 hover:text-cyan-400 transition-colors">
+              <button type="button" onClick={() => { setMode('forgot'); setError(''); setInfo(''); }} className="w-full text-sm text-zinc-500 hover:text-cyan-400 transition-colors">
                 {t.admin.forgot}
               </button>
             </form>
           )}
 
-          {mode === 'forgotOtp' && (
-            <form onSubmit={handleSendOtp} className="space-y-4">
+          {mode === 'forgot' && (
+            <form onSubmit={handleForgot} className="space-y-4">
               <Field icon={Mail} placeholder={t.admin.email} value={email} onChange={setEmail} dir="ltr" />
               <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white text-zinc-950 font-semibold text-sm hover:bg-cyan-400 disabled:opacity-50 transition-colors">
                 {loading ? t.common.loading : t.admin.sendOtp}
-              </button>
-              <button type="button" onClick={() => { setMode('login'); setError(''); setInfo(''); }} className="w-full text-sm text-zinc-500 hover:text-cyan-400">
-                {t.admin.backToLogin}
-              </button>
-            </form>
-          )}
-
-          {mode === 'forgotReset' && (
-            <form onSubmit={handleReset} className="space-y-4">
-              <Field icon={KeyRound} placeholder={t.admin.otpPlaceholder} value={otp} onChange={setOtp} dir="ltr" maxLength={6} />
-              <Field icon={Lock} placeholder={t.admin.newPassword} value={newPassword} onChange={setNewPassword} type="password" />
-              <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-cyan-400 text-zinc-950 font-semibold text-sm hover:bg-cyan-300 disabled:opacity-50 transition-colors">
-                {loading ? t.common.loading : t.admin.reset}
               </button>
               <button type="button" onClick={() => { setMode('login'); setError(''); setInfo(''); }} className="w-full text-sm text-zinc-500 hover:text-cyan-400">
                 {t.admin.backToLogin}
@@ -118,12 +91,12 @@ export default function AdminLogin() {
   );
 }
 
-function Field({ icon: Icon, placeholder, value, onChange, type = 'text', dir, maxLength }) {
+function Field({ icon: Icon, placeholder, value, onChange, type = 'text', dir }) {
   return (
     <div className="relative">
       <Icon className="absolute top-1/2 -translate-y-1/2 start-4 w-4 h-4 text-zinc-500" />
       <input
-        type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} dir={dir} maxLength={maxLength}
+        type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} dir={dir}
         className="w-full ps-11 pe-4 py-3.5 rounded-xl bg-zinc-900 border border-white/10 text-white text-sm placeholder:text-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors"
       />
     </div>

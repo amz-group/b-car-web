@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/lib/supabaseClient';
 
 const AdminAuthContext = createContext();
 
@@ -8,43 +8,98 @@ export function AdminAuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('bcar_admin');
-    if (stored) {
-      try { setAdmin(JSON.parse(stored)); } catch { localStorage.removeItem('bcar_admin'); }
-    }
-    setLoading(false);
+    let mounted = true;
+
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && mounted) {
+        await loadAdmin(session.user.email);
+      }
+      if (mounted) setLoading(false);
+    })();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        await loadAdmin(session.user.email);
+      } else if (event === 'SIGNED_OUT') {
+        setAdmin(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
+  async function loadAdmin(email) {
+    const { data } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('email', email)
+      .eq('active', true)
+      .single();
+    if (data) {
+      setAdmin(data);
+    } else {
+      await supabase.auth.signOut();
+      setAdmin(null);
+    }
+  }
+
   async function login(email, password) {
-    const res = await base44.functions.invoke('adminAuth', { action: 'login', email, password });
-    const data = res.data;
-    localStorage.setItem('bcar_admin', JSON.stringify(data));
-    setAdmin(data);
-    return data;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message);
+
+    const { data: adminData } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('email', email)
+      .eq('active', true)
+      .single();
+
+    if (!adminData) {
+      await supabase.auth.signOut();
+      throw new Error('Not an admin');
+    }
+    setAdmin(adminData);
+    return adminData;
   }
 
   async function requestOtp(email) {
-    const res = await base44.functions.invoke('adminAuth', { action: 'requestOtp', email });
-    return res.data;
-  }
-
-  async function resetPassword(email, code, newPassword) {
-    const res = await base44.functions.invoke('adminAuth', { action: 'resetPassword', email, code, newPassword });
-    return res.data;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/admin',
+    });
+    if (error) throw new Error(error.message);
+    return { success: true };
   }
 
   async function createAdmin(email, name, password, role) {
-    const res = await base44.functions.invoke('adminAuth', { action: 'createAdmin', email, name, password, role });
-    return res.data;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch('/api/createAdmin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ email, name, password, role }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Failed to create admin');
+    return data;
   }
 
-  function logout() {
-    localStorage.removeItem('bcar_admin');
+  async function logout() {
+    await supabase.auth.signOut();
     setAdmin(null);
   }
 
   return (
-    <AdminAuthContext.Provider value={{ admin, loading, login, logout, requestOtp, resetPassword, createAdmin, isOwner: admin?.role === 'owner' }}>
+    <AdminAuthContext.Provider
+      value={{ admin, loading, login, logout, requestOtp, createAdmin, isOwner: admin?.role === 'owner' }}
+    >
       {children}
     </AdminAuthContext.Provider>
   );

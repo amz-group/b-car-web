@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/upload';
 import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -29,7 +29,7 @@ export default function AdminSettings() {
   async function uploadFile(file, type) {
     setUploading(type);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await uploadFile(file, 'settings');
       set(type === 'logo' ? 'logo_url' : 'background_url', file_url);
     } catch { toast({ title: 'Upload failed', variant: 'destructive' }); }
     finally { setUploading(null); }

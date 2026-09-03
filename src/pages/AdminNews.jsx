@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/upload';
 import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -102,7 +102,7 @@ function NewsEditor({ item, onClose, onSaved }) {
 
   async function uploadImage(file) {
     setUploading(true);
-    try { const { file_url } = await base44.integrations.Core.UploadFile({ file }); set('image_url', file_url); }
+    try { const { file_url } = await uploadFile(file, 'news'); set('image_url', file_url); }
     catch { toast({ title: 'Upload failed', variant: 'destructive' }); }
     finally { setUploading(false); }
   }

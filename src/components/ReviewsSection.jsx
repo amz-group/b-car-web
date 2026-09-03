@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/upload';
+import { sendNotification } from '@/lib/notify';
 import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { Image } from '@/components/ui/image';
@@ -105,7 +106,7 @@ function ReviewForm({ carId, carName, t, onDone }) {
   async function uploadImage(file) {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await uploadFile(file, 'reviews');
       setForm(f => ({ ...f, images: [...(f.images || []), file_url].slice(0, 5) }));
     } catch { /* ignore */ }
     finally { setUploading(false); }
@@ -125,6 +126,7 @@ function ReviewForm({ carId, carName, t, onDone }) {
         customer_name: form.customer_name, rating: form.rating, comment: form.comment,
         images: form.images, approved: false
       });
+      sendNotification('review', { car_name: carName, customer_name: form.customer_name, rating: form.rating, comment: form.comment });
       setDone(true);
       setTimeout(onDone, 1800);
     } catch { /* ignore */ }

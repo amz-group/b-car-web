@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { sendNotification } from '@/lib/notify';
 import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useSettings } from '@/lib/useSettings';
@@ -75,6 +75,7 @@ export default function CarDetail() {
         customer_name: notifyForm.name, customer_phone: notifyForm.phone,
         notify_date: notifyForm.date || car.rented_until || '', status: 'pending'
       });
+      sendNotification('notify', { car_name: car.name, customer_name: notifyForm.name, customer_phone: notifyForm.phone, dates: notifyForm.date || car.rented_until || '' });
       setNotifyDone(true);
     } catch (err) { /* ignore */ }
     finally { setSubmitting(false); }

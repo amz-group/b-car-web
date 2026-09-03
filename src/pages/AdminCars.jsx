@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/upload';
 import { db } from '@/lib/db';
 import { useLang } from '@/lib/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -135,7 +135,7 @@ function CarEditor({ car, onClose, onSaved }) {
   async function uploadFile(file, type) {
     setUploading(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await uploadFile(file, 'cars');
       if (type === 'video') set('video_url', file_url);
       else set('images', [...(form.images || []), file_url].slice(0, 7));
     } catch { toast({ title: 'Upload failed', variant: 'destructive' }); }
