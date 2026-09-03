@@ -157,7 +157,11 @@ function CarEditor({ car, onClose, onSaved }) {
       else await db.Car.update(car.id, form);
       toast({ title: '✓' });
       onSaved();
-    } catch { toast({ title: 'Save failed', variant: 'destructive' }); }
+    } catch (e) {
+      console.error('Car save error:', e);
+      const msg = e?.message || e?.error || (typeof e === 'string' ? e : 'Save failed');
+      toast({ title: msg, variant: 'destructive' });
+    }
     finally { setSaving(false); }
   }
 
